@@ -1,0 +1,6 @@
+[package]
+name = "learn_rust"
+version = "0.1.0"
+authors = ["whoisfpc <wo_fpc@outlook.com>"]
+
+[dependencies]
