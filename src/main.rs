@@ -1,38 +1,21 @@
-extern crate rand;
+extern crate learn_rust;
 
-use rand::Rng;
-use std::cmp::Ordering;
-use std::io;
+use std::env;
+use std::process;
+
+use learn_rust::Config;
 
 fn main() {
-    println!("Guess the number!");
+    let args: Vec<String> = env::args().collect();
 
-    let secret_number = rand::thread_rng().gen_range(1, 101);
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        eprintln!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
 
-    println!("The secret number is: {}", secret_number);
+    if let Err(e) = learn_rust::run(config) {
+        eprintln!("Application error: {}", e);
 
-    loop {
-        println!("Please input your guess.");
-
-        let mut guess = String::new();
-
-        io::stdin().read_line(&mut guess)
-            .expect("Failed to read line");
-
-        let guess: u32 = match guess.trim().parse() {
-            Ok(num) => num,
-            Err(_) =>continue,
-        };
-
-        println!("You guessed: {}", guess);
-
-        match guess.cmp(&secret_number) {
-            Ordering::Less => println!("Too small!"),
-            Ordering::Greater => println!("Too big!"),
-            Ordering::Equal => {
-                println!("You win!");
-                break;
-            }
-        }
+        process::exit(1);
     }
 }
