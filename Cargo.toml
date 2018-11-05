@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["whoisfpc <wo_fpc@outlook.com>"]
 
 [dependencies]
-rand = "0.5"
+sdl2 = { version = "0.31.0", features = ["bundled", "static-link"] }
