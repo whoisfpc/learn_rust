@@ -5,4 +5,7 @@ authors = ["whoisfpc <wo_fpc@outlook.com>"]
 
 [dependencies]
 sdl2 = { version = "0.31.0", features = ["bundled", "static-link"] }
-gl = "0.11.0"
+gl = { path = "lib/gl" }
+
+[features]
+gl_debug = ["gl/debug"]

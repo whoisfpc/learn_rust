@@ -1,0 +1,12 @@
+[package]
+name = "gl"
+version = "0.1.0"
+authors = ["whoisfpc <wo_fpc@outlook.com>"]
+
+[dependencies]
+
+[build-dependencies]
+gl_generator = "0.10.0"
+
+[features]
+debug = []
