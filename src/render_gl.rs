@@ -2,6 +2,15 @@
 use gl;
 use std;
 use std::ffi::{CString, CStr};
+use resources::{self, Resources};
+
+#[derive(Debug)]
+pub enum Error {
+    ResourceLoad { name: String, inner: resources::Error },
+    CanNotDetermineShaderTypeForResource { name: String },
+    CompileError { name: String, message: String },
+    LinkError { name: String, message: String },
+}
 
 pub struct Program {
     gl: gl::Gl,
@@ -9,6 +18,22 @@ pub struct Program {
 }
 
 impl Program {
+    pub fn from_res(gl: &gl::Gl, res: &Resources, name: &str) -> Result<Program, Error> {
+        const POSSIBLE_EXT: [&str; 2] = [
+            ".vert",
+            ".frag",
+        ];
+
+        let shaders = POSSIBLE_EXT.iter()
+            .map(|file_extension| {
+                Shader::from_res(gl, res, &format!("{}{}", name, file_extension))
+            })
+            .collect::<Result<Vec<Shader>, Error>>()?;
+
+        Program::from_shaders(gl, &shaders[..])
+            .map_err(|message| Error::LinkError { name: name.into(), message })
+    }
+
     pub fn from_shaders(gl: &gl::Gl, shaders: &[Shader]) -> Result<Program, String> {
         let program_id = unsafe { gl.CreateProgram() };
 
@@ -75,6 +100,26 @@ pub struct Shader {
 }
 
 impl Shader {
+    pub fn from_res(gl: &gl::Gl, res: &Resources, name: &str) -> Result<Shader, Error> {
+        const POSSIBLE_EXT: [(&str, gl::types::GLenum); 2] = [
+            (".vert", gl::VERTEX_SHADER),
+            (".frag", gl::FRAGMENT_SHADER),
+        ];
+
+        let shader_kind = POSSIBLE_EXT.iter()
+            .find(|&&(file_extension, _)| {
+                name.ends_with(file_extension)
+            })
+            .map(|&(_, kind)| kind)
+            .ok_or_else(|| Error::CanNotDetermineShaderTypeForResource { name: name.into() })?;
+
+        let source = res.load_cstring(name)
+            .map_err(|e| Error::ResourceLoad { name: name.into(), inner: e })?;
+
+        Shader::from_source(gl, &source, shader_kind)
+            .map_err(|message| Error::CompileError { name: name.into(), message })
+    }
+
     pub fn from_source(gl: &gl::Gl, source: &CStr, kind: gl::types::GLuint) -> Result<Shader, String> {
         let id = shader_from_source(gl, source, kind)?;
         Ok(Shader { gl: gl.clone(), id })
