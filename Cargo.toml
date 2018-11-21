@@ -7,6 +7,7 @@ authors = ["whoisfpc <wo_fpc@outlook.com>"]
 sdl2 = { version = "0.31.0", features = ["bundled", "static-link"] }
 gl = { path = "lib/gl" }
 failure = "0.1.3"
+render_gl_derive = { path = "render_gl_derive" }
 
 [build-dependencies]
 walkdir = "2.2.6"

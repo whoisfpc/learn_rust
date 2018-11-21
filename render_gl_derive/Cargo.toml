@@ -1,0 +1,12 @@
+[package]
+name = "render_gl_derive"
+version = "0.1.0"
+authors = ["whoisfpc <wo_fpc@outlook.com>"]
+
+[dependencies]
+quote = "0.6.10"
+syn = "0.15.21"
+proc-macro2 = "0.4"
+
+[lib]
+proc-macro = true
