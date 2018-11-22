@@ -2,6 +2,7 @@ extern crate sdl2;
 extern crate gl;
 #[macro_use] extern crate failure;
 #[macro_use] extern crate render_gl_derive;
+extern crate vec_2_10_10_10;
 
 pub mod render_gl;
 pub mod resources;
@@ -19,7 +20,7 @@ struct Vertex {
     #[location = "0"]
     pos: data::f32_f32_f32, // position
     #[location = "1"]
-    clr: data::f32_f32_f32, // color
+    clr: data::u2_u10_u10_u10_rev_float, // color
 }
 
 
@@ -54,9 +55,9 @@ fn run() -> Result<(), failure::Error> {
     let shader_program = render_gl::Program::from_res(&gl, &res, "shaders/triangle")?;
 
     let vertices: Vec<Vertex> = vec![
-        Vertex { pos: (-0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0).into() },
-        Vertex { pos: (0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() },
-        Vertex { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0).into() }
+        Vertex { pos: (-0.5, -0.5, 0.0).into(), clr: (1.0, 0.0, 0.0, 1.0).into() },
+        Vertex { pos: (0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0, 1.0).into() },
+        Vertex { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0, 1.0).into() }
     ];
 
     let mut vbo: gl::types::GLuint = 0;
