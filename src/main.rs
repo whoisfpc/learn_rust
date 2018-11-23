@@ -12,6 +12,7 @@ use failure::err_msg;
 use resources::Resources;
 use std::path::Path;
 use render_gl::data;
+use render_gl::buffer;
 
 #[derive(VertexAttribPointers)]
 #[derive(Copy, Clone, Debug)]
@@ -60,32 +61,17 @@ fn run() -> Result<(), failure::Error> {
         Vertex { pos: (0.0, 0.5, 0.0).into(), clr: (0.0, 0.0, 1.0, 1.0).into() }
     ];
 
-    let mut vbo: gl::types::GLuint = 0;
-    unsafe {
-        gl.GenBuffers(1, &mut vbo);
-    }
-    unsafe {
-        gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
-        gl.BufferData(
-            gl::ARRAY_BUFFER, // target
-            (vertices.len() * std::mem::size_of::<Vertex>()) as gl::types::GLsizeiptr, // size of data in bytes
-            vertices.as_ptr() as *const gl::types::GLvoid, // pointer to data
-            gl::STATIC_DRAW, // usage
-        );
-        gl.BindBuffer(gl::ARRAY_BUFFER, 0); // unbind the buffer
-    }
+    let vbo = buffer::ArrayBuffer::new(&gl);
+    vbo.bind();
+    vbo.static_draw_data(&vertices);
+    vbo.unbind();
 
-    let mut vao: gl::types::GLuint = 0;
-    unsafe {
-        gl.GenVertexArrays(1, &mut vao);
-    }
-    unsafe {
-        gl.BindVertexArray(vao);
-        gl.BindBuffer(gl::ARRAY_BUFFER, vbo);
-        Vertex::vertex_attrib_pointers(&gl);
-        gl.BindBuffer(gl::ARRAY_BUFFER, 0);
-        gl.BindVertexArray(0);
-    }
+    let vao = buffer::VertexArray::new(&gl);
+    vao.bind();
+    vbo.bind();
+    Vertex::vertex_attrib_pointers(&gl);
+    vbo.unbind();
+    vao.unbind();
 
     let mut event_pump = sdl.event_pump().map_err(err_msg)?;
     'main: loop {
@@ -102,8 +88,8 @@ fn run() -> Result<(), failure::Error> {
 
         // draw triangle
         shader_program.set_used();
+        vao.bind();
         unsafe {
-            gl.BindVertexArray(vao);
             gl.DrawArrays(
                 gl::TRIANGLES, // mode
                 0, // starting index in the enabled arrays
