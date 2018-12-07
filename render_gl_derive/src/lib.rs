@@ -65,10 +65,7 @@ fn generate_struct_field_vertex_attrib_pointer_call(field: &syn::Field) -> Token
             "Field {:?} is missing #[location = ?] attribute", field_name
         ));
     let location_value: usize = match location_attr.parse_meta() {
-        Ok(syn::Meta::NameValue(syn::MetaNameValue{lit: syn::Lit::Str(lit_str), .. })) => lit_str.value().parse()
-            .unwrap_or_else(
-                |_| panic!("Field {} location attribute value must contain an integer", field_name)
-            ),
+        Ok(syn::Meta::NameValue(syn::MetaNameValue{lit: syn::Lit::Int(lit_int), .. })) => lit_int.value() as usize,
         _ => panic!("Field {} location attribute value must be an integer literal", field_name)
     };
 
